@@ -22,6 +22,10 @@ public class Main {
             System.out.println("RadixSort va a comenzar.");
             repeatSortAndMeasureTime("RadixSort");
             System.out.println("RadixSort ha terminado.");
+
+            System.out.println("HeapSort va a comenzar.");
+            repeatSortAndMeasureTime("HeapSort");
+            System.out.println("HeapSort ha terminado.");
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,6 +51,9 @@ public class Main {
                         break;
                     case "RadixSort":
                         RadixSort.sort(numbersToSort);
+                        break;
+                    case "HeapSort":
+                        HeapSort.sort(numbersToSort);
                         break;
                     default:
                         throw new IllegalArgumentException("Unknown algorithm: " + algorithmName);
