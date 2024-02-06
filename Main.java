@@ -1,61 +1,74 @@
-import java.io.IOException;
-import java.util.Arrays;
+import java.util.Random;
 
 public class Main {
 
-    private static final String FILE_NAME = "numeros.txt";
-    private static final int MAX_NUMBERS = 3000;
-    private static final int ITERATIONS = 3000;
+    private static final int MAX_NUMBERS = 3000; // Cantidad de números por array
+    private static final int ITERATIONS = 3000; // Cantidad de arrays a generar y ordenar
 
     public static void main(String[] args) {
         try {
-            NumberGenerator.generateToFile(FILE_NAME, MAX_NUMBERS);
-            int[] originalNumbers = NumberGenerator.readFromFile(FILE_NAME);
+            System.out.println("GnomeSort va a comenzar.");
+            repeatSortAndMeasureTime("GnomeSort");
+            System.out.println("GnomeSort ha terminado.");
 
-            // Repite el proceso de ordenamiento para cada algoritmo
-            repeatSortAndMeasureTime(originalNumbers, GnomeSort::sort, "GnomeSort");
-            repeatSortAndMeasureTime(originalNumbers, MergeSort::sort, "MergeSort");
-            repeatSortAndMeasureTime(originalNumbers, QuickSort::sort, "QuickSort");
-            repeatSortAndMeasureTimeForRadixSort(originalNumbers, "RadixSort");
+            System.out.println("MergeSort va a comenzar.");
+            repeatSortAndMeasureTime("MergeSort");
+            System.out.println("MergeSort ha terminado.");
 
-        } catch (IOException e) {
+            System.out.println("QuickSort va a comenzar.");
+            repeatSortAndMeasureTime("QuickSort");
+            System.out.println("QuickSort ha terminado.");
+
+            System.out.println("RadixSort va a comenzar.");
+            repeatSortAndMeasureTime("RadixSort");
+            System.out.println("RadixSort ha terminado.");
+            
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void repeatSortAndMeasureTime(int[] originalNumbers, SortingAlgorithm algorithm, String algorithmName) {
+    private static void repeatSortAndMeasureTime(String algorithmName) {
+        long totalTime = 0;
         for (int i = 0; i < ITERATIONS; i++) {
-            int[] numbersToSort = Arrays.copyOf(originalNumbers, originalNumbers.length);
-            runSortAndMeasureTime(numbersToSort, algorithm, algorithmName);
+            int[] numbersToSort = generateRandomArray(MAX_NUMBERS); // Genera un nuevo array de 3000 números para cada iteración
+            long startTime = System.currentTimeMillis();
+            
+            try {
+                switch (algorithmName) {
+                    case "GnomeSort":
+                        GnomeSort.sort(numbersToSort);
+                        break;
+                    case "MergeSort":
+                        MergeSort.sort(numbersToSort);
+                        break;
+                    case "QuickSort":
+                        QuickSort.sort(numbersToSort);
+                        break;
+                    case "RadixSort":
+                        RadixSort.sort(numbersToSort);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown algorithm: " + algorithmName);
+                }
+            } catch (Exception e) {
+                System.out.println("Una excepción ha ocurrido en " + algorithmName);
+                e.printStackTrace();
+            }
+
+            long endTime = System.currentTimeMillis();
+            totalTime += (endTime - startTime);
         }
+        System.out.println(algorithmName + " tomó: " + totalTime + " ms para ordenar " + ITERATIONS + " arrays de " + MAX_NUMBERS + " números cada uno.");
     }
 
-    private static void repeatSortAndMeasureTimeForRadixSort(int[] originalNumbers, String algorithmName) {
-        for (int i = 0; i < ITERATIONS; i++) {
-            int[] numbersToSort = Arrays.copyOf(originalNumbers, originalNumbers.length);
-            runSortAndMeasureTimeForRadixSort(numbersToSort, algorithmName);
+    private static int[] generateRandomArray(int size) {
+        int[] array = new int[size];
+        Random random = new Random();
+        for (int i = 0; i < size; i++) {
+            array[i] = random.nextInt(10000); // Genera números aleatorios entre 0 y 9999
         }
-    }
-
-    private static void runSortAndMeasureTime(int[] numbersToSort, SortingAlgorithm algorithm, String algorithmName) {
-        long startTime = System.nanoTime();
-        algorithm.sort(numbersToSort);
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000; // Convertir a milisegundos
-        System.out.println(algorithmName + " tomó: " + duration + " ms para ordenar " + MAX_NUMBERS + " números.");
-    }
-
-    private static void runSortAndMeasureTimeForRadixSort(int[] numbersToSort, String algorithmName) {
-        long startTime = System.nanoTime();
-        RadixSort.sort(numbersToSort, numbersToSort.length);
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime) / 1000000; // Convertir a milisegundos
-        System.out.println(algorithmName + " tomó: " + duration + " ms para ordenar " + MAX_NUMBERS + " números.");
-    }
-
-    @FunctionalInterface
-    interface SortingAlgorithm {
-        void sort(int[] arr);
+        return array;
     }
 }
 
